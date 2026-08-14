@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORÇAMENTO - Romano Serviços Elétricos</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        body { max-width: 750px; margin: 0 auto; padding: 20px 15px; background: #fff; }
+        .cabecalho { margin-bottom: 25px; text-align: center; }
+        .dados-empresa { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #f0c808; }
+        .dados-empresa h2 { font-size: 20px; font-weight: bold; margin-bottom: 5px; color: #333; }
+        .dados-empresa p { font-size: 14px; color: #555; }
+        .cabecalho h1 { font-size: 22px; font-weight: bold; margin: 15px 0; }
+        .dados p { margin: 6px 0; font-size: 15px; }
+        input { border: 1px solid #999; border-radius: 0; padding: 6px; font-size: 15px; width: 100%; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { border: 1px solid #000; padding: 8px 5px; font-size: 14px; }
+        th { background: #f0f0f0; font-weight: bold; }
+        .qtd { width: 12%; }
+        .desc { width: 56%; }
+        .vunit { width: 16%; }
+        .vtotal { width: 16%; }
+        .resumo { margin-left: auto; width: 60%; font-size: 15px; margin-top: 10px; }
+        .resumo td { border: none; padding: 6px 5px; }
+        .linha-total { border-top: 2px solid #000; font-weight: bold; font-size: 16px; }
+        .observacoes { margin-top: 20px; padding-top: 10px; }
+        textarea { width: 100%; height: 80px; border: 1px solid #999; padding: 8px; font-size: 14px; margin-top: 5px; }
+        .assinatura { display: flex; justify-content: space-between; margin-top: 40px; }
+        .linha-assinatura { border-bottom: 1px solid #000; width: 200px; text-align: center; padding-top: 30px; font-size: 13px; }
+        .botoes { margin-top: 25px; display: flex; gap: 10px; flex-wrap: wrap; }
+        button { padding: 10px 15px; font-size: 15px; border: none; cursor: pointer; border-radius: 4px; }
+        .btn-azul { background: #2980b9; color: #fff; }
+        .btn-verde { background: #27ae60; color: #fff; }
+        .btn-cinza { background: #95a5a6; color: #fff; }
+        .btn-vermelho { background: #e74c3c; color: #fff; }
+        button:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<!-- CABEÇALHO COM SEUS DADOS FIXOS -->
+<div class="cabecalho">
+    <div class="dados-empresa">
+        <h2>ROMANO SERVIÇOS ELÉTRICOS</h2>
+        <p>Rogério Romano — Elétrica em Geral</p>
+        <p>📞 (21) 98061-3434</p>
+    </div>
+    <h1>ORÇAMENTO</h1>
+    
+    <div class="dados">
+        <p><strong>Nome:</strong> <input type="text" id="nomeCliente" placeholder="Nome do Cliente"></p>
+        <p><strong>Endereço:</strong> <input type="text" id="enderecoCliente" placeholder="Endereço Completo"></p>
+        <p><strong>Telefone:</strong> <input type="tel" id="telefoneCliente" placeholder="(00) 00000-0000"></p>
+        <p><strong>Data:</strong> <input type="date" id="dataOrcamento"></p>
+        <p><strong>Validade:</strong> <input type="date" id="validadeOrcamento"></p>
+    </div>
+</div>
+
+<!-- TABELA DE ITENS -->
+<table id="tabela">
+    <thead>
+        <tr>
+            <th class="qtd">Unid.</th>
+            <th class="desc">Discriminação do Serviço / Material</th>
+            <th class="vunit">V. Unit</th>
+            <th class="vtotal">Total</th>
+        </tr>
+    </thead>
+    <tbody id="corpoTabela">
+    </tbody>
+</table>
+
+<div class="botoes">
+    <button class="btn-azul" onclick="adicionarLinha()">➕ Adicionar Linha</button>
+    <button class="btn-vermelho" onclick="removerLinha()">➖ Remover Última</button>
+</div>
+
+<!-- RESUMO -->
+<table class="resumo">
+    <tr>
+        <td>Total de Materiais</td>
+        <td id="valTotalMaterial">R$ 0,00</td>
+    </tr>
+    <tr>
+        <td>Mão de Obra</td>
+        <td><input type="text" id="valMaoObra" placeholder="0,00" oninput="calcular()"></td>
+    </tr>
+    <tr>
+        <td>Desconto</td>
+        <td><input type="text" id="valDesconto" placeholder="0,00" oninput="calcular()"></td>
+    </tr>
+    <tr class="linha-total">
+        <td>TOTAL GERAL</td>
+        <td id="valTotalGeral">R$ 0,00</td>
+    </tr>
+</table>
+
+<!-- OBSERVAÇÕES -->
+<div class="observacoes">
+    <strong>Observações / Condições de Pagamento:</strong>
+    <textarea id="observacoes" placeholder="Ex: Pagamento: 50% na entrada e 50% na conclusão do serviço. Validade do orçamento: 10 dias."></textarea>
+</div>
+
+<!-- ASSINATURAS -->
+<div class="assinatura">
+    <div class="linha-assinatura">Assinatura do Cliente<br>____/____/______</div>
+    <div class="linha-assinatura">Rogério Romano<br>Responsável Técnico</div>
+</div>
+
+<div class="botoes">
+    <button class="btn-verde" onclick="gerarPDF()">📄 Baixar PDF</button>
+    <button class="btn-azul" onclick="salvar()">💾 Salvar</button>
+    <button class="btn-cinza" onclick="novo()">🆕 Novo Orçamento</button>
+</div>
+
+<script>
+const { jsPDF } = window.jspdf;
+let indiceLinha = 0;
+
+// ✅ Converte vírgula para ponto automaticamente
+function parseValor(t) {
+    return parseFloat(String(t).replace(',', '.').trim()) || 0;
+}
+
+// Data e validade automáticas
+const hoje = new Date();
+document.getElementById('dataOrcamento').valueAsDate = hoje;
+const validade = new Date();
+validade.setDate(validade.getDate() + 10);
+document.getElementById('validadeOrcamento').valueAsDate = validade;
+
+adicionarLinha();
+
+function adicionarLinha() {
+    indiceLinha++;
+    const corpo = document.getElementById('corpoTabela');
+    const linha = document.createElement('tr');
+    linha.id = `linha-${indiceLinha}`;
+    linha.innerHTML = `
+        <td class="qtd"><input type="text" class="campo-qtd" value="1" oninput="calcularLinha(this)"></td>
+        <td class="desc"><input type="text" class="campo-desc" placeholder="Descrição do serviço ou material"></td>
+        <td class="vunit"><input type="text" class="campo-valor" placeholder="0,00" oninput="calcularLinha(this)"></td>
+        <td class="vtotal" id="total-item-${indiceLinha}">R$ 0,00</td>
+    `;
+    corpo.appendChild(linha);
+}
+
+function removerLinha() {
+    if (indiceLinha > 1) {
+        document.getElementById(`linha-${indiceLinha}`).remove();
+        indiceLinha--;
+        calcular();
+    } else {
+        alert('Deve haver pelo menos 1 linha!');
+    }
+}
+
+function calcularLinha(input) {
+    const linha = input.closest('tr');
+    const qtd = parseValor(linha.querySelector('.campo-qtd').value);
+    const unit = parseValor(linha.querySelector('.campo-valor').value);
+    const total = qtd * unit;
+    linha.querySelector('.vtotal').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    calcular();
+}
+
+function calcular() {
+    let somaMateriais = 0;
+    document.querySelectorAll('.vtotal').forEach(celula => {
+        const valor = parseValor(celula.textContent.replace('R$ ', ''));
+        somaMateriais += valor;
+    });
+    
+    const maoObra = parseValor(document.getElementById('valMaoObra').value);
+    const desconto = parseValor(document.getElementById('valDesconto').value);
+    const totalGeral = somaMateriais + maoObra - desconto;
+    
+    document.getElementById('valTotalMaterial').textContent = `R$ ${somaMateriais.toFixed(2).replace('.', ',')}`;
+    document.getElementById('valTotalGeral').textContent = `R$ ${Math.max(0, totalGeral).toFixed(2).replace('.', ',')}`;
+}
+
+// ✅ PDF Corrigido — sem símbolo problemático, com bordas e dados completos
+function gerarPDF() {
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const nome = document.getElementById('nomeCliente').value || 'Cliente';
+    const endereco = document.getElementById('enderecoCliente').value || '';
+    const telefone = document.getElementById('telefoneCliente').value || '';
+    const data = new Date(document.getElementById('dataOrcamento').value).toLocaleDateString('pt-BR');
+    const validade = new Date(document.getElementById('validadeOrcamento').value).toLocaleDateString('pt-BR');
+    const observacoes = document.getElementById('observacoes').value || '';
+
+    // Cabeçalho — sem símbolo especial quebrado
+    doc.setFontSize(18);
+    doc.setTextColor(0, 0, 0);
+    doc.text('ROMANO SERVIÇOS ELÉTRICOS', 105, 25, { align: 'center' });
+    doc.setFontSize(11);
+    doc.text('Rogério Romano — Elétrica em Geral', 105, 33, { align: 'center' });
+    doc.text('(21) 98061-3434', 105, 41, { align: 'center' });
+    doc.setLineWidth(0.5);
+    doc.line(20, 48, 195, 48);
+
+    doc.setFontSize(18);
+    doc.text('ORÇAMENTO', 105, 62, { align: 'center' });
+    
+    doc.setFontSize(11);
+    doc.text(`Nome: ${nome}`, 20, 78);
+    doc.text(`Endereço: ${endereco}`, 20, 86);
+    doc.text(`Telefone: ${telefone}`, 20, 94);
+    doc.text(`Data: ${data}`, 20, 102);
+    doc.text(`Válido até: ${validade}`, 20, 110);
+
+    // TABELA COM BORDAS COMPLETAS
+    let posY = 120;
+    doc.setLineWidth(0.5);
+    // Cabeçalho da tabela
+    doc.rect(20, posY, 175, 10); // Caixa externa
+    doc.line(42, posY, 42, posY + 10); // Divisão Unid.
+    doc.line(110, posY, 110, posY + 10); // Divisão Descrição
+    doc.line(155, posY, 155, posY + 10); // Divisão V. Unit
+    
+    doc.setFontSize(11);
+    doc.text('Unid.', 24, posY + 6.5);
+    doc.text('Discriminação do Serviço / Material', 46, posY + 6.5);
+    doc.text('V. Unit', 114, posY + 6.5);
+    doc.text('Total', 160, posY + 6.5);
+    posY += 10;
+
+    // Linhas de itens
+    document.querySelectorAll('#corpoTabela tr').forEach(linha => {
+        const qtd = linha.querySelector('.campo-qtd').value || '1';
+        const desc = linha.querySelector('.campo-desc').value || '-';
+        const unit = linha.querySelector('.campo-valor').value ? `R$ ${parseFloat(linha.querySelector('.campo-valor').value.replace(',', '.')).toFixed(2).replace('.', ',')}` : 'R$ 0,00';
+        const total = linha.querySelector('.vtotal').textContent;
+
+        // Desenha caixa e divisórias de cada linha
+        doc.rect(20, posY, 175, 8);
+        doc.line(42, posY, 42, posY + 8);
+        doc.line(110, posY, 110, posY + 8);
+        doc.line(155, posY, 155, posY + 8);
+
+        doc.text(qtd, 24, posY + 5.5);
+        doc.text(desc.substring(0, 52), 46, posY + 5.5);
+        doc.text(unit, 114, posY + 5.5);
+        doc.text(total, 160, posY + 5.5);
+        posY += 8;
+    });
+
+    // RESUMO ALINHADO
+    posY += 5;
+    doc.line(120, posY, 195, posY); posY += 8;
+    const totalMat = document.getElementById('valTotalMaterial').textContent;
+    const maoObra = document.getElementById('valMaoObra').value ? `R$ ${parseFloat(document.getElementById('valMaoObra').value.replace(',', '.')).toFixed(2).replace('.', ',')}` : 'R$ 0,00';
+    const desconto = document.getElementById('valDesconto').value ? `R$ ${parseFloat(document.getElementById('valDesconto').value.replace(',', '.')).toFixed(2).replace('.', ',')}` : 'R$ 0,00';
+    const totalGer = document.getElementById('valTotalGeral').textContent;
+
+    doc.text('Total Materiais', 122, posY); doc.text(`${totalMat}`, 170, posY, { align: 'right' }); posY += 8;
+    doc.text('Mão de Obra', 122, posY); doc.text(`${maoObra}`, 170, posY, { align: 'right' }); posY += 8;
+    doc.text('Desconto', 122, posY); doc.text(`-${desconto}`, 170, posY, { align: 'right' }); posY += 8;
+    doc.setLineWidth(0.8);
+    doc.line(120, posY, 195, posY); posY += 10;
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`TOTAL GERAL: ${totalGer}`, 122, posY);
+    doc.setFont('helvetica', 'normal');
+    posY += 15;
+
+    // OBSERVAÇÕES
+    doc.setFontSize(11);
+    doc.text('Observações / Condições de Pagamento:', 20, posY); posY += 7;
+    const linhasObs = doc.splitTextToSize(observacoes || 'Nenhuma observação.', 170);
+    doc.text(linhasObs, 20, posY);
+    posY += linhasObs.length * 5 + 20;
+
+    // ASSINATURAS
+    doc.line(30, posY, 90, posY);
+    doc.text('Assinatura do Cliente', 32, posY + 5);
+    doc.line(120, posY, 180, posY);
+    doc.text('Rogério Romano', 132, posY + 5);
+    doc.text('Responsável Técnico', 130, posY + 12);
+
+    doc.save(`ORCAMENTO_${nome.replace(/\s+/g, '_')}.pdf`);
+}
+
+function salvar() {
+    const dados = {
+        nome: document.getElementById('nomeCliente').value,
+        endereco: document.getElementById('enderecoCliente').value,
+        telefone: document.getElementById('telefoneCliente').value,
+        data: document.getElementById('dataOrcamento').value,
+        validade: document.getElementById('validadeOrcamento').value,
+        maoObra: document.getElementById('valMaoObra').value,
+        desconto: document.getElementById('valDesconto').value,
+        observacoes: document.getElementById('observacoes').value,
+        linhas: []
+    };
+    document.querySelectorAll('#corpoTabela tr').forEach(linha => {
+        dados.linhas.push({
+            qtd: linha.querySelector('.campo-qtd').value,
+            desc: linha.querySelector('.campo-desc').value,
+            valor: linha.querySelector('.campo-valor').value
+        });
+    });
+    localStorage.setItem('orcamentoSalvo', JSON.stringify(dados));
+    alert('✅ Salvo com sucesso!');
+}
+
+function novo() {
+    if (confirm('Iniciar orçamento novo? Os dados não salvos serão perdidos!')) {
+        localStorage.removeItem('orcamentoSalvo');
+        location.reload();
+    }
+}
+
+window.onload = () => {
+    const salvo = localStorage.getItem('orcamentoSalvo');
+    if (salvo && confirm('Encontrei um orçamento salvo. Carregar?')) {
+        const dados = JSON.parse(salvo);
+        document.getElementById('nomeCliente').value = dados.nome;
+        document.getElementById('enderecoCliente').value = dados.endereco;
+        document.getElementById('telefoneCliente').value = dados.telefone;
+        document.getElementById('dataOrcamento').value = dados.data;
+        document.getElementById('validadeOrcamento').value = dados.validade;
+        document.getElementById('valMaoObra').value = dados.maoObra;
+        document.getElementById('valDesconto').value = dados.desconto;
+        document.getElementById('observacoes').value = dados.observacoes;
+        
+        document.getElementById('corpoTabela').innerHTML = '';
+        indiceLinha = 0;
+
+        dados.linhas.forEach(item => {
+            adicionarLinha();
+            const linha = document.getElementById(`linha-${indiceLinha}`);
+            linha.querySelector('.campo-qtd').value = item.qtd;
+            linha.querySelector('.campo-desc').value = item.desc;
+            linha.querySelector('.campo-valor').value = item.valor;
+            calcularLinha(linha.querySelector('.campo-valor'));
+        });
+    }
+};
+</script>
+</body>
+</html>
