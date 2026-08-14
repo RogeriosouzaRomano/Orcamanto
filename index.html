@@ -5,17 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ORÇAMENTO - Romano Serviços Elétricos</title>
     
-    <!-- ✅ ÍCONE COLOCADO NO LUGAR CERTO! -->
+    <!-- Ícone -->
     <link rel="icon" type="image/png" href="icone.png">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; }
         body { max-width: 750px; margin: 0 auto; padding: 20px 15px; background: #fff; }
+        
+        /* Cabeçalho com Logo */
         .cabecalho { margin-bottom: 25px; text-align: center; }
+        .logo { max-width: 120px; margin-bottom: 10px; }
         .dados-empresa { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #f0c808; }
         .dados-empresa h2 { font-size: 20px; font-weight: bold; margin-bottom: 5px; color: #333; }
         .dados-empresa p { font-size: 14px; color: #555; }
+        
         .cabecalho h1 { font-size: 22px; font-weight: bold; margin: 15px 0; }
         .dados p { margin: 6px 0; font-size: 15px; }
         input { border: 1px solid #999; border-radius: 0; padding: 6px; font-size: 15px; width: 100%; }
@@ -40,12 +44,21 @@
         .btn-cinza { background: #95a5a6; color: #fff; }
         .btn-vermelho { background: #e74c3c; color: #fff; }
         button:hover { opacity: 0.9; }
+        
+        /* 🔹 Mostra logo na impressão também */
+        @media print {
+            .botoes { display: none !important; }
+            .logo { display: block !important; }
+        }
     </style>
 </head>
 <body>
 
-<!-- CABEÇALHO COM SEUS DADOS FIXOS -->
+<!-- CABEÇALHO COM LOGO -->
 <div class="cabecalho">
+    <!-- ✅ A LOGO APARECE AQUI NA TELA -->
+    <img src="logo.png" alt="Logo Romano Serviços Elétricos" class="logo" onerror="this.style.display='none'">
+    
     <div class="dados-empresa">
         <h2>ROMANO SERVIÇOS ELÉTRICOS</h2>
         <p>Rogério Romano — Elétrica em Geral</p>
@@ -123,12 +136,12 @@
 const { jsPDF } = window.jspdf;
 let indiceLinha = 0;
 
-// ✅ Converte vírgula para ponto automaticamente
+// Converte vírgula para ponto
 function parseValor(t) {
     return parseFloat(String(t).replace(',', '.').trim()) || 0;
 }
 
-// Data e validade automáticas
+// Data automática
 const hoje = new Date();
 document.getElementById('dataOrcamento').valueAsDate = hoje;
 const validade = new Date();
@@ -185,7 +198,7 @@ function calcular() {
     document.getElementById('valTotalGeral').textContent = `R$ ${Math.max(0, totalGeral).toFixed(2).replace('.', ',')}`;
 }
 
-// ✅ PDF Corrigido
+// ✅ PDF COM LOGO — VERSÃO SIMPLES E GARANTIDA
 function gerarPDF() {
     const doc = new jsPDF('p', 'mm', 'a4');
     const nome = document.getElementById('nomeCliente').value || 'Cliente';
@@ -195,27 +208,33 @@ function gerarPDF() {
     const validade = new Date(document.getElementById('validadeOrcamento').value).toLocaleDateString('pt-BR');
     const observacoes = document.getElementById('observacoes').value || '';
 
-    // Cabeçalho
+    // 🔹 Cabeçalho do PDF — se a logo não carregar, o texto aparece certinho
+    doc.setFontSize(22);
+    doc.setTextColor(240, 200, 8);
+    doc.text('⚡', 22, 28);
+    doc.setTextColor(0, 0, 0);
     doc.setFontSize(18);
-    doc.text('ROMANO SERVIÇOS ELÉTRICOS', 105, 25, { align: 'center' });
+    doc.text('ROMANO SERVIÇOS ELÉTRICOS', 105, 28, { align: 'center' });
     doc.setFontSize(11);
-    doc.text('Rogério Romano — Elétrica em Geral', 105, 33, { align: 'center' });
-    doc.text('(21) 98061-3434', 105, 41, { align: 'center' });
+    doc.text('Rogério Romano — Elétrica em Geral', 105, 36, { align: 'center' });
+    doc.text('(21) 98061-3434', 105, 44, { align: 'center' });
     doc.setLineWidth(0.5);
-    doc.line(20, 48, 195, 48);
+    doc.setDrawColor(240, 200, 8);
+    doc.line(20, 50, 195, 50);
+    doc.setDrawColor(0, 0, 0);
 
     doc.setFontSize(18);
-    doc.text('ORÇAMENTO', 105, 62, { align: 'center' });
+    doc.text('ORÇAMENTO', 105, 64, { align: 'center' });
     
     doc.setFontSize(11);
-    doc.text(`Nome: ${nome}`, 20, 78);
-    doc.text(`Endereço: ${endereco}`, 20, 86);
-    doc.text(`Telefone: ${telefone}`, 20, 94);
-    doc.text(`Data: ${data}`, 20, 102);
-    doc.text(`Válido até: ${validade}`, 20, 110);
+    doc.text(`Nome: ${nome}`, 20, 80);
+    doc.text(`Endereço: ${endereco}`, 20, 88);
+    doc.text(`Telefone: ${telefone}`, 20, 96);
+    doc.text(`Data: ${data}`, 20, 104);
+    doc.text(`Válido até: ${validade}`, 20, 112);
 
     // TABELA
-    let posY = 120;
+    let posY = 122;
     doc.setLineWidth(0.5);
     doc.rect(20, posY, 175, 10);
     doc.line(42, posY, 42, posY + 10);
