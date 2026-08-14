@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ORÇAMENTO - Romano Serviços Elétricos</title>
+    
+    <!-- ✅ ÍCONE COLOCADO NO LUGAR CERTO! -->
+    <link rel="icon" type="image/png" href="icone.png">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        <!-- ✅ COLE ESSA LINHA AQUI -->
-    
-        <link rel="icon" type="image/png" href="icone.png">
-
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
         * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; }
         body { max-width: 750px; margin: 0 auto; padding: 20px 15px; background: #fff; }
         .cabecalho { margin-bottom: 25px; text-align: center; }
@@ -187,7 +185,7 @@ function calcular() {
     document.getElementById('valTotalGeral').textContent = `R$ ${Math.max(0, totalGeral).toFixed(2).replace('.', ',')}`;
 }
 
-// ✅ PDF Corrigido — sem símbolo problemático, com bordas e dados completos
+// ✅ PDF Corrigido
 function gerarPDF() {
     const doc = new jsPDF('p', 'mm', 'a4');
     const nome = document.getElementById('nomeCliente').value || 'Cliente';
@@ -197,9 +195,8 @@ function gerarPDF() {
     const validade = new Date(document.getElementById('validadeOrcamento').value).toLocaleDateString('pt-BR');
     const observacoes = document.getElementById('observacoes').value || '';
 
-    // Cabeçalho — sem símbolo especial quebrado
+    // Cabeçalho
     doc.setFontSize(18);
-    doc.setTextColor(0, 0, 0);
     doc.text('ROMANO SERVIÇOS ELÉTRICOS', 105, 25, { align: 'center' });
     doc.setFontSize(11);
     doc.text('Rogério Romano — Elétrica em Geral', 105, 33, { align: 'center' });
@@ -217,30 +214,27 @@ function gerarPDF() {
     doc.text(`Data: ${data}`, 20, 102);
     doc.text(`Válido até: ${validade}`, 20, 110);
 
-    // TABELA COM BORDAS COMPLETAS
+    // TABELA
     let posY = 120;
     doc.setLineWidth(0.5);
-    // Cabeçalho da tabela
-    doc.rect(20, posY, 175, 10); // Caixa externa
-    doc.line(42, posY, 42, posY + 10); // Divisão Unid.
-    doc.line(110, posY, 110, posY + 10); // Divisão Descrição
-    doc.line(155, posY, 155, posY + 10); // Divisão V. Unit
+    doc.rect(20, posY, 175, 10);
+    doc.line(42, posY, 42, posY + 10);
+    doc.line(110, posY, 110, posY + 10);
+    doc.line(155, posY, 155, posY + 10);
     
     doc.setFontSize(11);
     doc.text('Unid.', 24, posY + 6.5);
-    doc.text('Discriminação do Serviço / Material', 46, posY + 6.5);
+    doc.text('Discriminação', 46, posY + 6.5);
     doc.text('V. Unit', 114, posY + 6.5);
     doc.text('Total', 160, posY + 6.5);
     posY += 10;
 
-    // Linhas de itens
     document.querySelectorAll('#corpoTabela tr').forEach(linha => {
         const qtd = linha.querySelector('.campo-qtd').value || '1';
         const desc = linha.querySelector('.campo-desc').value || '-';
         const unit = linha.querySelector('.campo-valor').value ? `R$ ${parseFloat(linha.querySelector('.campo-valor').value.replace(',', '.')).toFixed(2).replace('.', ',')}` : 'R$ 0,00';
         const total = linha.querySelector('.vtotal').textContent;
 
-        // Desenha caixa e divisórias de cada linha
         doc.rect(20, posY, 175, 8);
         doc.line(42, posY, 42, posY + 8);
         doc.line(110, posY, 110, posY + 8);
@@ -253,7 +247,7 @@ function gerarPDF() {
         posY += 8;
     });
 
-    // RESUMO ALINHADO
+    // RESUMO
     posY += 5;
     doc.line(120, posY, 195, posY); posY += 8;
     const totalMat = document.getElementById('valTotalMaterial').textContent;
