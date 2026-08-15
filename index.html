@@ -12,13 +12,32 @@
         * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; }
         body { max-width: 750px; margin: 0 auto; padding: 20px 15px; background: #fff; }
         
-        .cabecalho { margin-bottom: 25px; text-align: center; }
-        .logo { max-width: 120px; margin-bottom: 10px; }
-        .dados-empresa { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #f0c808; }
-        .dados-empresa h2 { font-size: 20px; font-weight: bold; margin-bottom: 5px; color: #333; }
-        .dados-empresa p { font-size: 14px; color: #555; }
+        /* Cabeçalho com LOGO AO LADO */
+        .cabecalho-superior {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0c808;
+        }
+        .logo {
+            max-width: 70px; /* 🔹 Diminuí a logo pra caber */
+            height: auto;
+        }
+        .dados-empresa h2 {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 3px;
+            color: #333;
+        }
+        .dados-empresa p {
+            font-size: 13px;
+            color: #555;
+        }
         
-        .cabecalho h1 { font-size: 22px; font-weight: bold; margin: 15px 0; }
+        .cabecalho h1 { font-size: 22px; font-weight: bold; margin: 10px 0 20px; text-align: center; }
         .dados p { margin: 6px 0; font-size: 15px; }
         input { border: 1px solid #999; border-radius: 0; padding: 6px; font-size: 15px; width: 100%; }
         table { width: 100%; border-collapse: collapse; margin: 15px 0; }
@@ -50,23 +69,24 @@
 </head>
 <body>
 
-<div class="cabecalho">
-    <img src="logo.png" alt="Logo" class="logo" onerror="this.style.display='none'">
-    
+<!-- ✅ LOGO AO LADO DO NOME — NA TELA -->
+<div class="cabecalho-superior">
+    <img id="logoImg" src="logo.png" alt="Logo" class="logo" crossorigin="anonymous" onerror="this.style.display='none'">
     <div class="dados-empresa">
         <h2>ROMANO SERVIÇOS ELÉTRICOS</h2>
         <p>Rogério Romano — Elétrica em Geral</p>
         <p>📞 (21) 98061-3434</p>
     </div>
-    <h1>ORÇAMENTO</h1>
-    
-    <div class="dados">
-        <p><strong>Nome:</strong> <input type="text" id="nomeCliente" placeholder="Nome do Cliente"></p>
-        <p><strong>Endereço:</strong> <input type="text" id="enderecoCliente" placeholder="Endereço Completo"></p>
-        <p><strong>Telefone:</strong> <input type="tel" id="telefoneCliente" placeholder="(00) 00000-0000"></p>
-        <p><strong>Data:</strong> <input type="date" id="dataOrcamento"></p>
-        <p><strong>Validade:</strong> <input type="date" id="validadeOrcamento"></p>
-    </div>
+</div>
+
+<h1>ORÇAMENTO</h1>
+
+<div class="dados">
+    <p><strong>Nome:</strong> <input type="text" id="nomeCliente" placeholder="Nome do Cliente"></p>
+    <p><strong>Endereço:</strong> <input type="text" id="enderecoCliente" placeholder="Endereço Completo"></p>
+    <p><strong>Telefone:</strong> <input type="tel" id="telefoneCliente" placeholder="(00) 00000-0000"></p>
+    <p><strong>Data:</strong> <input type="date" id="dataOrcamento"></p>
+    <p><strong>Validade:</strong> <input type="date" id="validadeOrcamento"></p>
 </div>
 
 <table id="tabela">
@@ -186,11 +206,26 @@ function calcular() {
     document.getElementById('valTotalGeral').textContent = `R$ ${Math.max(0, totalGeral).toFixed(2).replace('.', ',')}`;
 }
 
-// ✅ PDF CORRIGIDO — sem símbolo quebrado, dados completos
+// Converte imagem pra usar no PDF
+function getLogoBase64(callback) {
+    const img = document.getElementById('logoImg');
+    if (!img || img.style.display === 'none') { callback(null); return; }
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = 70;
+    canvas.height = 70;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, 70, 70);
+    try {
+        callback(canvas.toDataURL('image/png'));
+    } catch (e) {
+        callback(null);
+    }
+}
+
+// ✅ PDF — LOGO TAMBÉM AO LADO DO NOME!
 function gerarPDF() {
     const doc = new jsPDF('p', 'mm', 'a4');
-    
-    // 🔹 Pega os valores do formulário
     const nome = document.getElementById('nomeCliente').value || '---';
     const endereco = document.getElementById('enderecoCliente').value || '---';
     const telefone = document.getElementById('telefoneCliente').value || '---';
@@ -198,99 +233,98 @@ function gerarPDF() {
     const validade = new Date(document.getElementById('validadeOrcamento').value).toLocaleDateString('pt-BR');
     const observacoes = document.getElementById('observacoes').value || 'Nenhuma observação.';
 
-    // 🔹 Cabeçalho — SEM símbolo especial quebrado
-    doc.setFontSize(18);
-    doc.text('ROMANO SERVIÇOS ELÉTRICOS', 105, 25, { align: 'center' });
-    doc.setFontSize(11);
-    doc.text('Rogério Romano — Elétrica em Geral', 105, 33, { align: 'center' });
-    doc.text('(21) 98061-3434', 105, 41, { align: 'center' });
-    doc.setLineWidth(0.5);
-    doc.line(20, 48, 195, 48);
+    getLogoBase64(function(logoBase64) {
+        // 🔹 LOGO NO PDF: MENOR E AO LADO DO TEXTO
+        if (logoBase64) {
+            doc.addImage(logoBase64, 'PNG', 20, 18, 22, 22); // x=20, y=18, largura=22, altura=22
+        }
 
-    doc.setFontSize(18);
-    doc.text('ORÇAMENTO', 105, 62, { align: 'center' });
-    
-    // 🔹 DADOS DO CLIENTE — agora aparecendo certinho!
-    doc.setFontSize(11);
-    doc.text('Nome: ' + nome, 20, 78);
-    doc.text('Endereço: ' + endereco, 20, 86);
-    doc.text('Telefone: ' + telefone, 20, 94);
-    doc.text('Data: ' + data, 20, 102);
-    doc.text('Válido até: ' + validade, 20, 110);
+        // Cabeçalho — alinhado ao lado da logo
+        doc.setFontSize(18);
+        doc.text('ROMANO SERVIÇOS ELÉTRICOS', 48, 32); // Começa depois da logo
+        doc.setFontSize(11);
+        doc.text('Rogério Romano — Elétrica em Geral', 48, 40);
+        doc.text('(21) 98061-3434', 48, 48);
+        doc.setLineWidth(0.5);
+        doc.line(20, 55, 195, 55);
 
-    // 🔹 TABELA COM BORDAS E DADOS COMPLETOS
-    let posY = 120;
-    doc.setLineWidth(0.5);
-    
-    // Cabeçalho da tabela
-    doc.rect(20, posY, 175, 10);
-    doc.line(42, posY, 42, posY + 10);
-    doc.line(110, posY, 110, posY + 10);
-    doc.line(155, posY, 155, posY + 10);
-    
-    doc.setFontSize(11);
-    doc.text('Unid.', 24, posY + 6.5);
-    doc.text('Discriminação', 46, posY + 6.5);
-    doc.text('V. Unit', 114, posY + 6.5);
-    doc.text('Total', 160, posY + 6.5);
-    posY += 10;
+        doc.setFontSize(18);
+        doc.text('ORÇAMENTO', 105, 70, { align: 'center' });
+        
+        doc.setFontSize(11);
+        doc.text('Nome: ' + nome, 20, 85);
+        doc.text('Endereço: ' + endereco, 20, 93);
+        doc.text('Telefone: ' + telefone, 20, 101);
+        doc.text('Data: ' + data, 20, 109);
+        doc.text('Válido até: ' + validade, 20, 117);
 
-    // 🔹 LINHAS DE ITENS — descrição aparecendo agora!
-    document.querySelectorAll('#corpoTabela tr').forEach(linha => {
-        const qtd = linha.querySelector('.campo-qtd').value || '1';
-        const desc = linha.querySelector('.campo-desc').value || '---';
-        const unitVal = linha.querySelector('.campo-valor').value;
-        const unit = unitVal ? 'R$ ' + parseFloat(unitVal.replace(',', '.')).toFixed(2).replace('.', ',') : 'R$ 0,00';
-        const total = linha.querySelector('.vtotal').textContent;
+        let posY = 127;
+        doc.setLineWidth(0.5);
+        doc.rect(20, posY, 175, 10);
+        doc.line(42, posY, 42, posY + 10);
+        doc.line(110, posY, 110, posY + 10);
+        doc.line(155, posY, 155, posY + 10);
+        
+        doc.setFontSize(11);
+        doc.text('Unid.', 24, posY + 6.5);
+        doc.text('Discriminação', 46, posY + 6.5);
+        doc.text('V. Unit', 114, posY + 6.5);
+        doc.text('Total', 160, posY + 6.5);
+        posY += 10;
 
-        doc.rect(20, posY, 175, 8);
-        doc.line(42, posY, 42, posY + 8);
-        doc.line(110, posY, 110, posY + 8);
-        doc.line(155, posY, 155, posY + 8);
+        document.querySelectorAll('#corpoTabela tr').forEach(linha => {
+            const qtd = linha.querySelector('.campo-qtd').value || '1';
+            const desc = linha.querySelector('.campo-desc').value || '---';
+            const unitVal = linha.querySelector('.campo-valor').value;
+            const unit = unitVal ? 'R$ ' + parseFloat(unitVal.replace(',', '.')).toFixed(2).replace('.', ',') : 'R$ 0,00';
+            const total = linha.querySelector('.vtotal').textContent;
 
-        doc.text(qtd, 24, posY + 5.5);
-        doc.text(desc.substring(0, 52), 46, posY + 5.5);
-        doc.text(unit, 114, posY + 5.5);
-        doc.text(total, 160, posY + 5.5);
-        posY += 8;
+            doc.rect(20, posY, 175, 8);
+            doc.line(42, posY, 42, posY + 8);
+            doc.line(110, posY, 110, posY + 8);
+            doc.line(155, posY, 155, posY + 8);
+
+            doc.text(qtd, 24, posY + 5.5);
+            doc.text(desc.substring(0, 52), 46, posY + 5.5);
+            doc.text(unit, 114, posY + 5.5);
+            doc.text(total, 160, posY + 5.5);
+            posY += 8;
+        });
+
+        posY += 5;
+        doc.line(120, posY, 195, posY); posY += 8;
+        const totalMat = document.getElementById('valTotalMaterial').textContent;
+        const maoObraVal = document.getElementById('valMaoObra').value;
+        const maoObra = maoObraVal ? 'R$ ' + parseFloat(maoObraVal.replace(',', '.')).toFixed(2).replace('.', ',') : 'R$ 0,00';
+        const descVal = document.getElementById('valDesconto').value;
+        const desconto = descVal ? 'R$ ' + parseFloat(descVal.replace(',', '.')).toFixed(2).replace('.', ',') : 'R$ 0,00';
+        const totalGer = document.getElementById('valTotalGeral').textContent;
+
+        doc.text('Total Materiais', 122, posY); doc.text(totalMat, 170, posY, { align: 'right' }); posY += 8;
+        doc.text('Mão de Obra', 122, posY); doc.text(maoObra, 170, posY, { align: 'right' }); posY += 8;
+        doc.text('Desconto', 122, posY); doc.text('-' + desconto, 170, posY, { align: 'right' }); posY += 8;
+        doc.setLineWidth(0.8);
+        doc.line(120, posY, 195, posY); posY += 10;
+        doc.setFontSize(13);
+        doc.setFont('helvetica', 'bold');
+        doc.text('TOTAL GERAL: ' + totalGer, 122, posY);
+        doc.setFont('helvetica', 'normal');
+        posY += 15;
+
+        doc.setFontSize(11);
+        doc.text('Observações / Condições de Pagamento:', 20, posY); posY += 7;
+        const linhasObs = doc.splitTextToSize(observacoes, 170);
+        doc.text(linhasObs, 20, posY);
+        posY += linhasObs.length * 5 + 20;
+
+        doc.line(30, posY, 90, posY);
+        doc.text('Assinatura do Cliente', 32, posY + 5);
+        doc.line(120, posY, 180, posY);
+        doc.text('Rogério Romano', 132, posY + 5);
+        doc.text('Responsável Técnico', 130, posY + 12);
+
+        doc.save('ORCAMENTO_' + nome.replace(/\s+/g, '_') + '.pdf');
     });
-
-    // 🔹 RESUMO
-    posY += 5;
-    doc.line(120, posY, 195, posY); posY += 8;
-    const totalMat = document.getElementById('valTotalMaterial').textContent;
-    const maoObraVal = document.getElementById('valMaoObra').value;
-    const maoObra = maoObraVal ? 'R$ ' + parseFloat(maoObraVal.replace(',', '.')).toFixed(2).replace('.', ',') : 'R$ 0,00';
-    const descVal = document.getElementById('valDesconto').value;
-    const desconto = descVal ? 'R$ ' + parseFloat(descVal.replace(',', '.')).toFixed(2).replace('.', ',') : 'R$ 0,00';
-    const totalGer = document.getElementById('valTotalGeral').textContent;
-
-    doc.text('Total Materiais', 122, posY); doc.text(totalMat, 170, posY, { align: 'right' }); posY += 8;
-    doc.text('Mão de Obra', 122, posY); doc.text(maoObra, 170, posY, { align: 'right' }); posY += 8;
-    doc.text('Desconto', 122, posY); doc.text('-' + desconto, 170, posY, { align: 'right' }); posY += 8;
-    doc.setLineWidth(0.8);
-    doc.line(120, posY, 195, posY); posY += 10;
-    doc.setFontSize(13);
-    doc.setFont('helvetica', 'bold');
-    doc.text('TOTAL GERAL: ' + totalGer, 122, posY);
-    doc.setFont('helvetica', 'normal');
-    posY += 15;
-
-    // 🔹 OBSERVAÇÕES
-    doc.setFontSize(11);
-    doc.text('Observações / Condições de Pagamento:', 20, posY); posY += 7;
-    const linhasObs = doc.splitTextToSize(observacoes, 170);
-    doc.text(linhasObs, 20, posY);
-    posY += linhasObs.length * 5 + 20;
-
-    // 🔹 ASSINATURAS
-    doc.line(30, posY, 90, posY);
-    doc.text('Assinatura do Cliente', 32, posY + 5);
-    doc.line(120, posY, 180, posY);
-    doc.text('Rogério Romano', 132, posY + 5);
-    doc.text('Responsável Técnico', 130, posY + 12);
-
-    doc.save('ORCAMENTO_' + nome.replace(/\s+/g, '_') + '.pdf');
 }
 
 function salvar() {
