@@ -70,15 +70,35 @@
         
         h1 { font-size: 20px; text-align: center; margin: 10px 0 15px; font-weight: bold; text-transform: uppercase; }
         
-        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        th, td { border: 1px solid #000; padding: 9px 6px; font-size: 14px; vertical-align: middle; }
-        th { background-color: #f5f5f5; font-weight: bold; text-align: left; }
-        .col-qtd { width: 10%; text-align: center; }
-        .col-desc { width: 60%; }
-        .col-valor-u { width: 15%; text-align: right; }
-        .col-valor-t { width: 15%; text-align: right; }
-        input { border: none; outline: none; width: 100%; font-size: 14px; background: transparent; }
-        td input { text-align: inherit; }
+        /* ===== TABELA COM ALINHAMENTO FIXO ===== */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; table-layout: fixed; }
+        th, td { 
+            border: 1px solid #000; 
+            padding: 7px 8px; 
+            font-size: 14px; 
+            vertical-align: middle; 
+            white-space: nowrap;
+        }
+        th { background-color: #f5f5f5; font-weight: bold; }
+        
+        /* Larguras fixas das colunas */
+        .col-qtd    { width: 10%;  text-align: center; }
+        .col-desc   { width: 55%;  text-align: left;   }
+        .col-valor-u{ width: 17%;  text-align: right;  }
+        .col-valor-t{ width: 18%;  text-align: right;  }
+        
+        /* Inputs sem quebrar o layout */
+        input { 
+            border: none; 
+            outline: none; 
+            width: 100%; 
+            font-size: 14px; 
+            background: transparent;
+            box-sizing: border-box;
+        }
+        .col-qtd input    { text-align: center; }
+        .col-valor-u input{ text-align: right;  }
+        .col-valor-t      { padding-right: 10px; }
         
         .bloco-totais {
             margin-left: auto;
@@ -162,7 +182,6 @@
 </head>
 <body>
 
-<!-- Cabeçalho -->
 <div class="cabecalho-principal">
     <div class="logo-empresa">
         <img id="logoImg" src="logo.png" alt="Logo Romano Serviços Elétricos" class="logo" crossorigin="anonymous" onerror="this.style.display='none'">
@@ -178,7 +197,6 @@
 
 <h1>ORÇAMENTO PRESTADORES DE SERVIÇOS</h1>
 
-<!-- Dados do Cliente -->
 <div class="bloco-dados">
     <div class="linha-dado">
         <strong>Cliente:</strong>
@@ -202,7 +220,6 @@
     </div>
 </div>
 
-<!-- Tabela de Itens -->
 <table id="tabela">
     <thead>
         <tr>
@@ -220,7 +237,6 @@
     <button class="btn-perigo" onclick="removerLinha()">➖ Remover Último</button>
 </div>
 
-<!-- Totais -->
 <div class="bloco-totais">
     <div class="linha-total">
         <span>Valor Total dos Materiais</span>
@@ -228,11 +244,11 @@
     </div>
     <div class="linha-total">
         <span>Mão de Obra</span>
-        <span><input type="text" id="valMaoObra" placeholder="0,00" oninput="calcular()" style="text-align: right;"></span>
+        <span><input type="text" id="valMaoObra" placeholder="0,00" oninput="calcular()" style="width: 100px; text-align: right;"></span>
     </div>
     <div class="linha-total">
         <span>Desconto</span>
-        <span><input type="text" id="valDesconto" placeholder="0,00" oninput="calcular()" style="text-align: right;"></span>
+        <span><input type="text" id="valDesconto" placeholder="0,00" oninput="calcular()" style="width: 100px; text-align: right;"></span>
     </div>
     <div class="linha-total valor-final">
         <span>VALOR TOTAL GERAL</span>
@@ -240,7 +256,6 @@
     </div>
 </div>
 
-<!-- Condições e Garantia -->
 <div class="bloco-condicoes">
     <h3>Condições Comerciais e Garantia</h3>
     <div class="texto-condicoes">
@@ -256,7 +271,6 @@
     <textarea id="observacoes" placeholder="Observações adicionais..."></textarea>
 </div>
 
-<!-- Assinaturas -->
 <div class="bloco-assinaturas">
     <div class="assinatura">
         <div class="linha-assinar"></div>
@@ -268,7 +282,6 @@
     </div>
 </div>
 
-<!-- Botões de Ação -->
 <div class="botoes">
     <button class="btn-sucesso" onclick="gerarPDF()">📄 Baixar PDF</button>
     <button class="btn-primario" onclick="salvar()">💾 Salvar Orçamento</button>
@@ -283,7 +296,6 @@ function parseValor(t) {
     return parseFloat(String(t).replace(',', '.').trim()) || 0;
 }
 
-// Datas padrão
 const hoje = new Date();
 document.getElementById('dataOrcamento').valueAsDate = hoje;
 const validade = new Date();
@@ -298,9 +310,9 @@ function adicionarLinha() {
     const linha = document.createElement('tr');
     linha.id = `linha-${indiceLinha}`;
     linha.innerHTML = `
-        <td class="col-qtd"><input type="text" class="campo-qtd" value="1" oninput="calcularLinha(this)" style="text-align: center;"></td>
-        <td class="col-desc"><input type="text" class="campo-desc" placeholder="Descrição do serviço ou material"></td>
-        <td class="col-valor-u"><input type="text" class="campo-valor" placeholder="0,00" oninput="calcularLinha(this)" style="text-align: right;"></td>
+        <td class="col-qtd"><input type="text" class="campo-qtd" value="1" oninput="calcularLinha(this)"></td>
+        <td class="col-desc"><input type="text" class="campo-desc" placeholder="Descrição"></td>
+        <td class="col-valor-u"><input type="text" class="campo-valor" placeholder="0,00" oninput="calcularLinha(this)"></td>
         <td class="col-valor-t" id="total-item-${indiceLinha}">R$ 0,00</td>
     `;
     corpo.appendChild(linha);
@@ -312,7 +324,7 @@ function removerLinha() {
         indiceLinha--;
         calcular();
     } else {
-        alert('Deve haver pelo menos um item no orçamento!');
+        alert('Deve haver pelo menos um item!');
     }
 }
 
@@ -390,7 +402,6 @@ function gerarPDF() {
 
         cabecalho();
 
-        // Cabeçalho tabela
         doc.setFillColor(245, 245, 245);
         doc.rect(20, posY, 175, 9, 'F');
         doc.rect(20, posY, 175, 9);
@@ -405,7 +416,6 @@ function gerarPDF() {
         doc.setFont('helvetica', 'normal');
         posY += 9;
 
-        // Itens
         document.querySelectorAll('#corpoTabela tr').forEach(linha => {
             const qtd = linha.querySelector('.campo-qtd').value || '1';
             const desc = linha.querySelector('.campo-desc').value.trim();
@@ -444,7 +454,6 @@ function gerarPDF() {
             posY += 7;
         });
 
-        // Totais
         if (posY + 45 > LIMITE_PAGINA) { doc.addPage(); cabecalho(); }
         posY += 4;
         const totalMat = document.getElementById('valTotalMaterial').textContent;
@@ -463,7 +472,6 @@ function gerarPDF() {
         doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
         posY += 12;
 
-        // Condições
         doc.setFontSize(9); doc.setFont('helvetica', 'bold');
         doc.text('CONDIÇÕES E GARANTIA', 20, posY);
         doc.setFont('helvetica', 'normal');
@@ -482,7 +490,6 @@ function gerarPDF() {
         }
         posY += 8;
 
-        // Assinaturas
         if (posY + 35 > LIMITE_PAGINA) { doc.addPage(); posY = 30; }
         doc.line(25, posY, 85, posY);
         doc.text('Assinatura do Cliente', 27, posY + 5);
