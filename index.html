@@ -10,134 +10,269 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; }
-        body { max-width: 750px; margin: 0 auto; padding: 20px 15px; background: #fff; }
+        body { max-width: 780px; margin: 0 auto; padding: 25px 20px; background: #fff; }
         
-        .cabecalho-superior {
+        .cabecalho-principal {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 15px;
+            justify-content: space-between;
+            border-bottom: 3px solid #000;
             padding-bottom: 15px;
-            border-bottom: 2px solid #f0c808;
+            margin-bottom: 20px;
+        }
+        .logo-empresa {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
         .logo {
-            max-width: 70px;
+            max-width: 65px;
             height: auto;
         }
         .dados-empresa h2 {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
-            margin-bottom: 3px;
-            color: #333;
+            text-transform: uppercase;
+            color: #000;
+            margin-bottom: 2px;
         }
         .dados-empresa p {
             font-size: 13px;
-            color: #555;
+            color: #222;
+            line-height: 1.4;
+        }
+        .numero-orcamento {
+            text-align: right;
+            font-size: 14px;
+            font-weight: bold;
         }
         
-        .cabecalho h1 { font-size: 22px; font-weight: bold; margin: 10px 0 20px; text-align: center; }
-        .dados p { margin: 6px 0; font-size: 15px; }
-        input { border: 1px solid #999; border-radius: 0; padding: 6px; font-size: 15px; width: 100%; }
-        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-        th, td { border: 1px solid #000; padding: 8px 5px; font-size: 14px; }
-        th { background: #f0f0f0; font-weight: bold; }
-        .qtd { width: 12%; }
-        .desc { width: 56%; }
-        .vunit { width: 16%; }
-        .vtotal { width: 16%; }
-        .resumo { margin-left: auto; width: 60%; font-size: 15px; margin-top: 10px; }
-        .resumo td { border: none; padding: 6px 5px; }
-        .linha-total { border-top: 2px solid #000; font-weight: bold; font-size: 16px; }
-        .observacoes { margin-top: 20px; padding-top: 10px; }
-        textarea { width: 100%; height: 80px; border: 1px solid #999; padding: 8px; font-size: 14px; margin-top: 5px; }
-        .assinatura { display: flex; justify-content: space-between; margin-top: 40px; }
-        .linha-assinatura { border-bottom: 1px solid #000; width: 200px; text-align: center; padding-top: 30px; font-size: 13px; }
-        .botoes { margin-top: 25px; display: flex; gap: 10px; flex-wrap: wrap; }
-        button { padding: 10px 15px; font-size: 15px; border: none; cursor: pointer; border-radius: 4px; }
-        .btn-azul { background: #2980b9; color: #fff; }
-        .btn-verde { background: #27ae60; color: #fff; }
-        .btn-cinza { background: #95a5a6; color: #fff; }
-        .btn-vermelho { background: #e74c3c; color: #fff; }
-        button:hover { opacity: 0.9; }
+        .bloco-dados {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 20px;
+            margin-bottom: 20px;
+        }
+        .linha-dado {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        .linha-dado strong { min-width: 90px; display: inline-block; }
+        .linha-dado input {
+            flex: 1;
+            border: 1px solid #ccc;
+            border-radius: 0;
+            padding: 5px 8px;
+            font-size: 14px;
+        }
+        .linha-dado input[type="date"] { max-width: 140px; }
+        
+        h1 { font-size: 20px; text-align: center; margin: 10px 0 15px; font-weight: bold; text-transform: uppercase; }
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        th, td { border: 1px solid #000; padding: 9px 6px; font-size: 14px; vertical-align: middle; }
+        th { background-color: #f5f5f5; font-weight: bold; text-align: left; }
+        .col-qtd { width: 10%; text-align: center; }
+        .col-desc { width: 60%; }
+        .col-valor-u { width: 15%; text-align: right; }
+        .col-valor-t { width: 15%; text-align: right; }
+        input { border: none; outline: none; width: 100%; font-size: 14px; background: transparent; }
+        td input { text-align: inherit; }
+        
+        .bloco-totais {
+            margin-left: auto;
+            width: 320px;
+            font-size: 14px;
+        }
+        .linha-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .linha-total.valor-final {
+            border-top: 2px solid #000;
+            border-bottom: 3px double #000;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 8px 0;
+            margin-top: 4px;
+        }
+        
+        .bloco-condicoes {
+            margin-top: 25px;
+            border-top: 1px solid #ccc;
+            padding-top: 15px;
+        }
+        .bloco-condicoes h3 { font-size: 14px; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; }
+        .texto-condicoes {
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-line;
+            color: #222;
+        }
+        .bloco-condicoes textarea {
+            width: 100%;
+            min-height: 90px;
+            border: 1px solid #ccc;
+            padding: 8px;
+            font-size: 13px;
+            margin-top: 8px;
+            resize: vertical;
+        }
+        
+        .bloco-assinaturas {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+            gap: 20px;
+        }
+        .assinatura {
+            width: 220px;
+            text-align: center;
+        }
+        .linha-assinar {
+            border-bottom: 1px solid #000;
+            margin-bottom: 8px;
+            height: 30px;
+        }
+        .assinatura p { font-size: 13px; }
+        
+        .botoes { margin-top: 30px; display: flex; gap: 12px; flex-wrap: wrap; }
+        button {
+            padding: 10px 18px;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+        .btn-primario { background: #0047ab; color: #fff; }
+        .btn-sucesso { background: #007a3d; color: #fff; }
+        .btn-secundario { background: #e0e0e0; color: #333; }
+        .btn-perigo { background: #c53030; color: #fff; }
+        button:hover { opacity: 0.92; }
         
         @media print {
             .botoes { display: none !important; }
+            body { padding: 10px; }
         }
     </style>
 </head>
 <body>
 
-<div class="cabecalho-superior">
-    <img id="logoImg" src="logo.png" alt="Logo" class="logo" crossorigin="anonymous" onerror="this.style.display='none'">
-    <div class="dados-empresa">
-        <h2>ROMANO SERVIÇOS ELÉTRICOS</h2>
-        <p>Rogério Romano — Elétrica em Geral</p>
-        <p>📞 (21) 98061-3434</p>
+<!-- Cabeçalho -->
+<div class="cabecalho-principal">
+    <div class="logo-empresa">
+        <img id="logoImg" src="logo.png" alt="Logo Romano Serviços Elétricos" class="logo" crossorigin="anonymous" onerror="this.style.display='none'">
+        <div class="dados-empresa">
+            <h2>Romano Serviços Elétricos</h2>
+            <p>Rogério Romano — Elétrica em Geral<br>📞 (21) 98061-3434</p>
+        </div>
+    </div>
+    <div class="numero-orcamento">
+        ORÇAMENTO Nº <input type="text" id="numOrcamento" value="001" style="width: 40px; text-align: right; font-weight: bold;">
     </div>
 </div>
 
-<h1>ORÇAMENTO</h1>
+<h1>ORÇAMENTO PRESTADORES DE SERVIÇOS</h1>
 
-<div class="dados">
-    <p><strong>Nome:</strong> <input type="text" id="nomeCliente" placeholder="Nome do Cliente"></p>
-    <p><strong>Endereço:</strong> <input type="text" id="enderecoCliente" placeholder="Endereço Completo"></p>
-    <p><strong>Telefone:</strong> <input type="tel" id="telefoneCliente" placeholder="(00) 00000-0000"></p>
-    <p><strong>Data:</strong> <input type="date" id="dataOrcamento"></p>
-    <p><strong>Validade:</strong> <input type="date" id="validadeOrcamento"></p>
+<!-- Dados do Cliente -->
+<div class="bloco-dados">
+    <div class="linha-dado">
+        <strong>Cliente:</strong>
+        <input type="text" id="nomeCliente" placeholder="Nome completo">
+    </div>
+    <div class="linha-dado">
+        <strong>Telefone:</strong>
+        <input type="tel" id="telefoneCliente" placeholder="(00) 00000-0000">
+    </div>
+    <div class="linha-dado" style="grid-column: 1 / -1;">
+        <strong>Endereço:</strong>
+        <input type="text" id="enderecoCliente" placeholder="Endereço completo do serviço">
+    </div>
+    <div class="linha-dado">
+        <strong>Data:</strong>
+        <input type="date" id="dataOrcamento">
+    </div>
+    <div class="linha-dado">
+        <strong>Válido até:</strong>
+        <input type="date" id="validadeOrcamento">
+    </div>
 </div>
 
+<!-- Tabela de Itens -->
 <table id="tabela">
     <thead>
         <tr>
-            <th class="qtd">Unid.</th>
-            <th class="desc">Discriminação do Serviço / Material</th>
-            <th class="vunit">V. Unit</th>
-            <th class="vtotal">Total</th>
+            <th class="col-qtd">Qtd</th>
+            <th class="col-desc">Descrição do Serviço / Material</th>
+            <th class="col-valor-u">V. Unitário</th>
+            <th class="col-valor-t">V. Total</th>
         </tr>
     </thead>
-    <tbody id="corpoTabela">
-    </tbody>
+    <tbody id="corpoTabela"></tbody>
 </table>
 
+<div class="botoes" style="margin-bottom: 10px;">
+    <button class="btn-primario" onclick="adicionarLinha()">➕ Adicionar Item</button>
+    <button class="btn-perigo" onclick="removerLinha()">➖ Remover Último</button>
+</div>
+
+<!-- Totais -->
+<div class="bloco-totais">
+    <div class="linha-total">
+        <span>Valor Total dos Materiais</span>
+        <span id="valTotalMaterial">R$ 0,00</span>
+    </div>
+    <div class="linha-total">
+        <span>Mão de Obra</span>
+        <span><input type="text" id="valMaoObra" placeholder="0,00" oninput="calcular()" style="text-align: right;"></span>
+    </div>
+    <div class="linha-total">
+        <span>Desconto</span>
+        <span><input type="text" id="valDesconto" placeholder="0,00" oninput="calcular()" style="text-align: right;"></span>
+    </div>
+    <div class="linha-total valor-final">
+        <span>VALOR TOTAL GERAL</span>
+        <span id="valTotalGeral">R$ 0,00</span>
+    </div>
+</div>
+
+<!-- Condições e Garantia -->
+<div class="bloco-condicoes">
+    <h3>Condições Comerciais e Garantia</h3>
+    <div class="texto-condicoes">
+✅ **Garantia da Mão de Obra**: 90 dias (conforme Lei nº 8.078/90 — CDC), cobrindo exclusivamente defeitos decorrentes da execução do serviço.
+
+✅ **Materiais e Lâmpadas**: A garantia dos materiais e lâmpadas é de responsabilidade do fabricante/fornecedor. Defeitos de fabricação não constituem obrigação de reparo ou substituição por parte do prestador de serviço.
+
+✅ **Não Abrangência**: Esta garantia não cobre danos por mau uso, queda de energia, sobrecarga, alterações na rede elétrica ou desgaste natural de componentes.
+
+📌 **Pagamento**: ______% no início e ______% na conclusão dos serviços.
+📌 **Validade deste orçamento**: 10 dias corridos.
+    </div>
+    <textarea id="observacoes" placeholder="Observações adicionais..."></textarea>
+</div>
+
+<!-- Assinaturas -->
+<div class="bloco-assinaturas">
+    <div class="assinatura">
+        <div class="linha-assinar"></div>
+        <p>Assinatura do Cliente<br>Data: ____/____/______</p>
+    </div>
+    <div class="assinatura">
+        <div class="linha-assinar"></div>
+        <p>Rogério Romano<br>Responsável Técnico</p>
+    </div>
+</div>
+
+<!-- Botões de Ação -->
 <div class="botoes">
-    <button class="btn-azul" onclick="adicionarLinha()">➕ Adicionar Linha</button>
-    <button class="btn-vermelho" onclick="removerLinha()">➖ Remover Última</button>
-</div>
-
-<table class="resumo">
-    <tr>
-        <td>Total de Materiais</td>
-        <td id="valTotalMaterial">R$ 0,00</td>
-    </tr>
-    <tr>
-        <td>Mão de Obra</td>
-        <td><input type="text" id="valMaoObra" placeholder="0,00" oninput="calcular()"></td>
-    </tr>
-    <tr>
-        <td>Desconto</td>
-        <td><input type="text" id="valDesconto" placeholder="0,00" oninput="calcular()"></td>
-    </tr>
-    <tr class="linha-total">
-        <td>TOTAL GERAL</td>
-        <td id="valTotalGeral">R$ 0,00</td>
-    </tr>
-</table>
-
-<div class="observacoes">
-    <strong>Observações / Condições de Pagamento:</strong>
-    <textarea id="observacoes" placeholder="Ex: Pagamento: 50% na entrada e 50% na conclusão do serviço. Validade do orçamento: 10 dias."></textarea>
-</div>
-
-<div class="assinatura">
-    <div class="linha-assinatura">Assinatura do Cliente<br>____/____/______</div>
-    <div class="linha-assinatura">Rogério Romano<br>Responsável Técnico</div>
-</div>
-
-<div class="botoes">
-    <button class="btn-verde" onclick="gerarPDF()">📄 Baixar PDF</button>
-    <button class="btn-azul" onclick="salvar()">💾 Salvar</button>
-    <button class="btn-cinza" onclick="novo()">🆕 Novo Orçamento</button>
+    <button class="btn-sucesso" onclick="gerarPDF()">📄 Baixar PDF</button>
+    <button class="btn-primario" onclick="salvar()">💾 Salvar Orçamento</button>
+    <button class="btn-secundario" onclick="novo()">🆕 Novo Orçamento</button>
 </div>
 
 <script>
@@ -148,6 +283,7 @@ function parseValor(t) {
     return parseFloat(String(t).replace(',', '.').trim()) || 0;
 }
 
+// Datas padrão
 const hoje = new Date();
 document.getElementById('dataOrcamento').valueAsDate = hoje;
 const validade = new Date();
@@ -162,10 +298,10 @@ function adicionarLinha() {
     const linha = document.createElement('tr');
     linha.id = `linha-${indiceLinha}`;
     linha.innerHTML = `
-        <td class="qtd"><input type="text" class="campo-qtd" value="1" oninput="calcularLinha(this)"></td>
-        <td class="desc"><input type="text" class="campo-desc" placeholder="Descrição do serviço ou material"></td>
-        <td class="vunit"><input type="text" class="campo-valor" placeholder="0,00" oninput="calcularLinha(this)"></td>
-        <td class="vtotal" id="total-item-${indiceLinha}">R$ 0,00</td>
+        <td class="col-qtd"><input type="text" class="campo-qtd" value="1" oninput="calcularLinha(this)" style="text-align: center;"></td>
+        <td class="col-desc"><input type="text" class="campo-desc" placeholder="Descrição do serviço ou material"></td>
+        <td class="col-valor-u"><input type="text" class="campo-valor" placeholder="0,00" oninput="calcularLinha(this)" style="text-align: right;"></td>
+        <td class="col-valor-t" id="total-item-${indiceLinha}">R$ 0,00</td>
     `;
     corpo.appendChild(linha);
 }
@@ -176,7 +312,7 @@ function removerLinha() {
         indiceLinha--;
         calcular();
     } else {
-        alert('Deve haver pelo menos 1 linha!');
+        alert('Deve haver pelo menos um item no orçamento!');
     }
 }
 
@@ -185,13 +321,13 @@ function calcularLinha(input) {
     const qtd = parseValor(linha.querySelector('.campo-qtd').value);
     const unit = parseValor(linha.querySelector('.campo-valor').value);
     const total = qtd * unit;
-    linha.querySelector('.vtotal').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    linha.querySelector('.col-valor-t').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
     calcular();
 }
 
 function calcular() {
     let somaMateriais = 0;
-    document.querySelectorAll('.vtotal').forEach(celula => {
+    document.querySelectorAll('.col-valor-t').forEach(celula => {
         const valor = parseValor(celula.textContent.replace('R$ ', ''));
         somaMateriais += valor;
     });
@@ -207,120 +343,110 @@ function calcular() {
 function getLogoBase64(callback) {
     const img = document.getElementById('logoImg');
     if (!img || img.style.display === 'none') { callback(null); return; }
-    
     const canvas = document.createElement('canvas');
-    canvas.width = 70;
-    canvas.height = 70;
+    canvas.width = 65; canvas.height = 65;
     const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, 70, 70);
-    try {
-        callback(canvas.toDataURL('image/png'));
-    } catch (e) {
-        callback(null);
-    }
+    ctx.drawImage(img, 0, 0, 65, 65);
+    try { callback(canvas.toDataURL('image/png')); }
+    catch (e) { callback(null); }
 }
 
 function gerarPDF() {
     const doc = new jsPDF('p', 'mm', 'a4');
+    const numOrc = document.getElementById('numOrcamento').value || '001';
     const nome = document.getElementById('nomeCliente').value || '';
     const endereco = document.getElementById('enderecoCliente').value || '';
     const telefone = document.getElementById('telefoneCliente').value || '';
     const data = new Date(document.getElementById('dataOrcamento').value).toLocaleDateString('pt-BR');
     const validade = new Date(document.getElementById('validadeOrcamento').value).toLocaleDateString('pt-BR');
-    const observacoes = document.getElementById('observacoes').value || '';
+    const observacoes = document.getElementById('observacoes').value || 'Nenhuma observação.';
 
-    // 🔹 Limites da página A4: ~20mm de margem embaixo = espaço para assinatura
-    const LIMITE_PAGINA = 265;
-    const ALTURA_ASSINATURA = 35;
+    const LIMITE_PAGINA = 262;
+    const ESPACO_FINAL = 45;
 
     getLogoBase64(function(logoBase64) {
         let posY = 0;
 
-        function adicionarCabecalho() {
-            if (logoBase64) {
-                doc.addImage(logoBase64, 'PNG', 20, 18, 22, 22);
-            }
-            doc.setFontSize(18);
-            doc.text('ROMANO SERVIÇOS ELÉTRICOS', 48, 32);
-            doc.setFontSize(11);
-            doc.text('Rogério Romano — Elétrica em Geral', 48, 40);
-            doc.text('(21) 98061-3434', 48, 48);
-            doc.setLineWidth(0.5);
-            doc.line(20, 55, 195, 55);
-            doc.setFontSize(18);
-            doc.text('ORÇAMENTO', 105, 70, { align: 'center' });
-            doc.setFontSize(11);
-            doc.text('Nome: ' + nome, 20, 85);
-            doc.text('Endereço: ' + endereco, 20, 93);
-            doc.text('Telefone: ' + telefone, 20, 101);
-            doc.text('Data: ' + data, 20, 109);
-            doc.text('Válido até: ' + validade, 20, 117);
-            posY = 127;
+        function cabecalho() {
+            if (logoBase64) doc.addImage(logoBase64, 'PNG', 20, 15, 20, 20);
+            doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+            doc.text('ROMANO SERVIÇOS ELÉTRICOS', 45, 28);
+            doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+            doc.text('Rogério Romano — Elétrica em Geral', 45, 35);
+            doc.text('(21) 98061-3434', 45, 41);
+            doc.text('ORÇAMENTO Nº ' + numOrc, 175, 20, { align: 'right' });
+            doc.setLineWidth(0.8); doc.line(20, 48, 195, 48);
+            doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+            doc.text('ORÇAMENTO', 105, 58, { align: 'center' });
+            doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+            doc.text('Cliente: ' + nome, 20, 72);
+            doc.text('Endereço: ' + endereco, 20, 79);
+            doc.text('Telefone: ' + telefone, 20, 86);
+            doc.text('Data: ' + data, 20, 93);
+            doc.text('Válido até: ' + validade, 145, 93);
+            doc.setLineWidth(0.5); doc.line(20, 100, 195, 100);
+            posY = 107;
         }
 
-        adicionarCabecalho();
+        cabecalho();
 
-        // Cabeçalho da tabela
-        doc.setLineWidth(0.5);
-        doc.rect(20, posY, 175, 10);
-        doc.line(42, posY, 42, posY + 10);
-        doc.line(110, posY, 110, posY + 10);
-        doc.line(155, posY, 155, posY + 10);
-        doc.setFontSize(11);
-        doc.text('Unid.', 24, posY + 6.5);
-        doc.text('Discriminação', 46, posY + 6.5);
-        doc.text('V. Unit', 114, posY + 6.5);
-        doc.text('Total', 160, posY + 6.5);
-        posY += 10;
+        // Cabeçalho tabela
+        doc.setFillColor(245, 245, 245);
+        doc.rect(20, posY, 175, 9, 'F');
+        doc.rect(20, posY, 175, 9);
+        doc.line(38, posY, 38, posY + 9);
+        doc.line(115, posY, 115, posY + 9);
+        doc.line(152, posY, 152, posY + 9);
+        doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+        doc.text('Qtd', 23, posY + 6);
+        doc.text('Descrição', 41, posY + 6);
+        doc.text('V. Unit', 118, posY + 6);
+        doc.text('V. Total', 155, posY + 6);
+        doc.setFont('helvetica', 'normal');
+        posY += 9;
 
-        // Linhas de itens — com quebra de página automática
+        // Itens
         document.querySelectorAll('#corpoTabela tr').forEach(linha => {
             const qtd = linha.querySelector('.campo-qtd').value || '1';
             const desc = linha.querySelector('.campo-desc').value.trim();
             const unitVal = linha.querySelector('.campo-valor').value.trim();
             const unitNum = parseValor(unitVal);
-            
             if (!desc && unitNum === 0) return;
 
             const unit = unitVal ? 'R$ ' + unitNum.toFixed(2).replace('.', ',') : 'R$ 0,00';
-            const total = linha.querySelector('.vtotal').textContent;
+            const total = linha.querySelector('.col-valor-t').textContent;
 
-            // 🔹 Se faltar espaço, NOVA PÁGINA!
-            if (posY + 8 > LIMITE_PAGINA - ALTURA_ASSINATURA) {
-                doc.addPage();
-                adicionarCabecalho();
-                doc.setLineWidth(0.5);
-                doc.rect(20, posY, 175, 10);
-                doc.line(42, posY, 42, posY + 10);
-                doc.line(110, posY, 110, posY + 10);
-                doc.line(155, posY, 155, posY + 10);
-                doc.setFontSize(11);
-                doc.text('Unid.', 24, posY + 6.5);
-                doc.text('Discriminação', 46, posY + 6.5);
-                doc.text('V. Unit', 114, posY + 6.5);
-                doc.text('Total', 160, posY + 6.5);
-                posY += 10;
+            if (posY + 7 > LIMITE_PAGINA - ESPACO_FINAL) {
+                doc.addPage(); cabecalho();
+                doc.setFillColor(245, 245, 245);
+                doc.rect(20, posY, 175, 9, 'F');
+                doc.rect(20, posY, 175, 9);
+                doc.line(38, posY, 38, posY + 9);
+                doc.line(115, posY, 115, posY + 9);
+                doc.line(152, posY, 152, posY + 9);
+                doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+                doc.text('Qtd', 23, posY + 6);
+                doc.text('Descrição', 41, posY + 6);
+                doc.text('V. Unit', 118, posY + 6);
+                doc.text('V. Total', 155, posY + 6);
+                doc.setFont('helvetica', 'normal');
+                posY += 9;
             }
 
-            doc.rect(20, posY, 175, 8);
-            doc.line(42, posY, 42, posY + 8);
-            doc.line(110, posY, 110, posY + 8);
-            doc.line(155, posY, 155, posY + 8);
-            doc.text(qtd, 24, posY + 5.5);
-            doc.text(desc.substring(0, 52), 46, posY + 5.5);
-            doc.text(unit, 114, posY + 5.5);
-            doc.text(total, 160, posY + 5.5);
-            posY += 8;
+            doc.rect(20, posY, 175, 7);
+            doc.line(38, posY, 38, posY + 7);
+            doc.line(115, posY, 115, posY + 7);
+            doc.line(152, posY, 152, posY + 7);
+            doc.text(qtd, 23, posY + 4.8);
+            doc.text(desc.substring(0, 58), 41, posY + 4.8);
+            doc.text(unit, 118, posY + 4.8, { align: 'right' });
+            doc.text(total, 172, posY + 4.8, { align: 'right' });
+            posY += 7;
         });
 
-        // Resumo
-        if (posY + 45 > LIMITE_PAGINA) {
-            doc.addPage();
-            adicionarCabecalho();
-        }
-
-        posY += 5;
-        doc.line(120, posY, 195, posY); posY += 8;
+        // Totais
+        if (posY + 45 > LIMITE_PAGINA) { doc.addPage(); cabecalho(); }
+        posY += 4;
         const totalMat = document.getElementById('valTotalMaterial').textContent;
         const maoObraVal = document.getElementById('valMaoObra').value.trim();
         const maoObra = maoObraVal ? 'R$ ' + parseValor(maoObraVal).toFixed(2).replace('.', ',') : 'R$ 0,00';
@@ -328,48 +454,50 @@ function gerarPDF() {
         const desconto = descVal ? 'R$ ' + parseValor(descVal).toFixed(2).replace('.', ',') : 'R$ 0,00';
         const totalGer = document.getElementById('valTotalGeral').textContent;
 
-        doc.text('Total Materiais', 122, posY); doc.text(totalMat, 170, posY, { align: 'right' }); posY += 8;
-        doc.text('Mão de Obra', 122, posY); doc.text(maoObra, 170, posY, { align: 'right' }); posY += 8;
-        doc.text('Desconto', 122, posY); doc.text('-' + desconto, 170, posY, { align: 'right' }); posY += 8;
-        doc.setLineWidth(0.8);
-        doc.line(120, posY, 195, posY); posY += 10;
-        doc.setFontSize(13);
-        doc.setFont('helvetica', 'bold');
-        doc.text('TOTAL GERAL: ' + totalGer, 122, posY);
+        doc.text('Total Materiais', 120, posY); doc.text(totalMat, 190, posY, { align: 'right' }); posY += 6;
+        doc.text('Mão de Obra', 120, posY); doc.text(maoObra, 190, posY, { align: 'right' }); posY += 6;
+        doc.text('Desconto', 120, posY); doc.text('-' + desconto, 190, posY, { align: 'right' }); posY += 8;
+        doc.setLineWidth(0.7); doc.line(120, posY, 195, posY); posY += 7;
+        doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+        doc.text('VALOR TOTAL: ' + totalGer, 120, posY);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+        posY += 12;
+
+        // Condições
+        doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+        doc.text('CONDIÇÕES E GARANTIA', 20, posY);
         doc.setFont('helvetica', 'normal');
-        posY += 15;
-
-        // Observações
-        doc.setFontSize(11);
-        doc.text('Observações / Condições de Pagamento:', 20, posY); posY += 7;
-        const linhasObs = doc.splitTextToSize(observacoes || 'Nenhuma observação.', 170);
-        
-        if (posY + (linhasObs.length * 5) + ALTURA_ASSINATURA > LIMITE_PAGINA) {
-            doc.addPage();
-            posY = 30;
+        posY += 5;
+        const regras = [
+            '• Garantia de 90 dias exclusivamente pela mão de obra de execução (Lei 8.078/90).',
+            '• Materiais e lâmpadas: garantia do fabricante — defeitos de fabricação não são de responsabilidade do instalador.',
+            '• Não cobre mau uso, queda de energia, sobrecarga ou desgaste natural.',
+            '• Pagamento: ______% no início e ______% na conclusão. Validade: 10 dias.'
+        ];
+        regras.forEach(linha => { doc.text(linha, 22, posY); posY += 4.5; });
+        if (observacoes.trim() && observacoes !== 'Nenhuma observação.') {
+            posY += 2;
+            doc.text('Observações adicionais:', 22, posY); posY += 4.5;
+            doc.splitTextToSize(observacoes, 168).forEach(l => { doc.text(l, 22, posY); posY += 4.5; });
         }
-        
-        doc.text(linhasObs, 20, posY);
-        posY += linhasObs.length * 5 + 20;
+        posY += 8;
 
-        // 🔹 ASSINATURA — SEMPRE EM PÁGINA VISÍVEL
-        if (posY + ALTURA_ASSINATURA > LIMITE_PAGINA) {
-            doc.addPage();
-            posY = 30;
-        }
+        // Assinaturas
+        if (posY + 35 > LIMITE_PAGINA) { doc.addPage(); posY = 30; }
+        doc.line(25, posY, 85, posY);
+        doc.text('Assinatura do Cliente', 27, posY + 5);
+        doc.text('Data: ___/___/______', 27, posY + 11);
+        doc.line(125, posY, 185, posY);
+        doc.text('Rogério Romano', 127, posY + 5);
+        doc.text('Responsável Técnico', 127, posY + 11);
 
-        doc.line(30, posY, 90, posY);
-        doc.text('Assinatura do Cliente', 32, posY + 5);
-        doc.line(120, posY, 180, posY);
-        doc.text('Rogério Romano', 132, posY + 5);
-        doc.text('Responsável Técnico', 130, posY + 12);
-
-        doc.save('ORCAMENTO_' + (nome || 'ORCAMENTO').replace(/\s+/g, '_') + '.pdf');
+        doc.save('ORCAMENTO_' + numOrc + '_' + (nome || 'CLIENTE').replace(/\s+/g, '_') + '.pdf');
     });
 }
 
 function salvar() {
     const dados = {
+        num: document.getElementById('numOrcamento').value,
         nome: document.getElementById('nomeCliente').value,
         endereco: document.getElementById('enderecoCliente').value,
         telefone: document.getElementById('telefoneCliente').value,
@@ -392,11 +520,11 @@ function salvar() {
         }
     });
     localStorage.setItem('orcamentoSalvo', JSON.stringify(dados));
-    alert('✅ Salvo com sucesso!');
+    alert('✅ Orçamento salvo com sucesso!');
 }
 
 function novo() {
-    if (confirm('Iniciar orçamento novo? Os dados não salvos serão perdidos!')) {
+    if (confirm('Iniciar orçamento novo? Dados não salvos serão perdidos!')) {
         localStorage.removeItem('orcamentoSalvo');
         location.reload();
     }
@@ -404,8 +532,9 @@ function novo() {
 
 window.onload = () => {
     const salvo = localStorage.getItem('orcamentoSalvo');
-    if (salvo && confirm('Encontrei um orçamento salvo. Carregar?')) {
+    if (salvo && confirm('Existe um orçamento salvo. Carregar?')) {
         const dados = JSON.parse(salvo);
+        document.getElementById('numOrcamento').value = dados.num || '001';
         document.getElementById('nomeCliente').value = dados.nome || '';
         document.getElementById('enderecoCliente').value = dados.endereco || '';
         document.getElementById('telefoneCliente').value = dados.telefone || '';
@@ -417,7 +546,6 @@ window.onload = () => {
         
         document.getElementById('corpoTabela').innerHTML = '';
         indiceLinha = 0;
-
         if (dados.linhas && dados.linhas.length > 0) {
             dados.linhas.forEach(item => {
                 adicionarLinha();
@@ -433,5 +561,6 @@ window.onload = () => {
     }
 };
 </script>
+
 </body>
 </html>
